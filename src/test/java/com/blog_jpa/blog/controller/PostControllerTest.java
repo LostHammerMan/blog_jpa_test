@@ -1,27 +1,49 @@
 package com.blog_jpa.blog.controller;
 
+import com.blog_jpa.blog.domain.entity.Post;
+import com.blog_jpa.blog.dto.request.PostCreate;
+import com.blog_jpa.blog.repository.PostRepository;
+import com.blog_jpa.blog.service.PostService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.result.ModelResultMatchers;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 //@SpringBootTest -> 스프링이 관리하는 모든 빈을 등록시켜서 통합 테스트 진행 > 무거움
-@WebMvcTest
+//@WebMvcTest
+@AutoConfigureMockMvc // SpringBootTest 환경에서 Mock 사용하는 경우 필수
+@SpringBootTest
 @Slf4j
 class PostControllerTest {
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private PostService postService;
+
+    // 각각의 메서드가 실행되기 전 우선적으로 실행됨
+    @BeforeEach
+    void clean(){
+        postRepository.deleteAll();
+    }
+
 
     @Test
     @DisplayName("/posts 요청시 hello world 출력")
@@ -44,16 +66,20 @@ class PostControllerTest {
                }
         * */
 
+
+
         //expected
         // content-type : 서버로 요청할 때나 혹은 요청을 받을 때 리소스의 media type 나타냄
         mockMvc.perform(MockMvcRequestBuilders.post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
+
+                        // 아래와 같이 쓰는건 불편 위처럼 생성자로 생성
                         .content("{\"title\" : \"제목1\", \"content\" : \"내용1\"}")
                 )
 //                        .param("title", "글 제목")
 //                        .param("content", "글 내용"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("hello world"))
+                .andExpect(MockMvcResultMatchers.content().string("{}"))
 
                 // http 요청에 대한 summary 출력
                 .andDo(MockMvcResultHandlers.print());
@@ -62,6 +88,8 @@ class PostControllerTest {
     @Test
     @DisplayName("/posts 요청시 title 값은 필수")
     public void test2() throws Exception {
+
+
         // expected
         mockMvc.perform(MockMvcRequestBuilders.post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -82,18 +110,71 @@ class PostControllerTest {
     @Test
     @DisplayName("write test")
     public void test3() throws Exception {
-        // expected
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+
+        // before
+        /// 테스트 수행시 각각의 test 메서드가 서로 영향을 주지 않도록 짜는 것이 좋다
+        //postRepository.deleteAll(); // 비추
+
+        // given
+            // PostCreate 생성자 매개변수의 순서를 바꾸는 경우 문제 발생
+//        PostCreate request = new PostCreate("제목입니다33", "내용입니다33");
+        PostCreate request = PostCreate.builder()
+                .title("제목입니다44")
+                .content("내용입니다44")
+                .build();
+
+//        PostCreate request2 = request.changeTitle("제목임55");
+
+        // json 으로 변환해주는 Jackson library 사용(필수 암기)
+        // ObjectMapper 를 빈으로 주입받아도 사용 가능
+//        ObjectMapper objectMapper = new ObjectMapper();
+
+        // 자바 객체 -> json
+        String json = objectMapper.writeValueAsString(request);
+        log.info("json = {}", json);
+
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders.post("/post2")
                         .contentType(MediaType.APPLICATION_JSON)
-//                .content("{\"title\" : \"\", \"content\" : \"\"}"))
-//                .content("{\"title\" : null, \"content\" : \"내용2222\"}"))
-                        .content("{\"title\" : null, \"content\" : null}"))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-//                .andExpect(MockMvcResultMatchers.content().string("hello world"))
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("no title!!!!")) // json 검증시
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("400")) // json 검증시
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("잘못된 요청입니다")) // json 검증시
-                .andExpect(MockMvcResultMatchers.jsonPath("$.validation.title").value("제목 입력해주세요")) // json 검증시
+//                        .content("{\"title\" : \"제목입니다\", \"content\" : \"내용입니다\"}"))
+                        .content(json))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        // then
+//        Assertions.assertEquals(1L, postRepository.count());
+
+        // DB 잘 저장되었는지 확인
+        /*Post postExam = postRepository.findAll().get(0);
+        log.info("postExam.getTitle = {}", postExam.getTitle());
+        log.info("postExam.getContent = {}", postExam.getContent());
+
+        Assertions.assertEquals("제목입니다33", postExam.getTitle());
+        Assertions.assertEquals("내용입니다33", postExam.getContent());*/
+
+    }
+
+    // 단건 조회
+    @Test
+    @DisplayName("단건 조회 테스트")
+    public void test4() throws Exception {
+
+        // given
+        Post post = Post.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+
+        postRepository.save(post);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts/{postId}", post.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(post.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("제목1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value("222"))
                 .andDo(MockMvcResultHandlers.print());
     }
 }

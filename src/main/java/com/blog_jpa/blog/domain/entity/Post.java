@@ -23,8 +23,11 @@ public class Post {
         this.content = content;
     }
 
-    // title 10 글자로 제한
-    public String getTitle(){
+    // 엔티티에 getter 를 만드는 경우 서비스 정책을 포함시키지 말 것!!! 절대!!!!
+    // ex) title 10 글자로 제한
+    // 응답 전용 클래스 분리 추천(서비스 정책에 맞는) > ex) PostResponse
+
+    /*public String getTitle(){
         return this.title.substring(0, 10);
-    }
+    }*/
 }

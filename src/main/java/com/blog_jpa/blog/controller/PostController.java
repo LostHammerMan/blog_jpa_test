@@ -2,14 +2,18 @@ package com.blog_jpa.blog.controller;
 
 import com.blog_jpa.blog.domain.entity.Post;
 import com.blog_jpa.blog.dto.request.PostCreate;
+import com.blog_jpa.blog.dto.request.PostSearch;
+import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class PostController {
     // post -> 200, 201
     // post 요청은 일반적으로 void
     // but 응답데이터를 달라고 클라이언트에서 요청하는 경우
-    @PostMapping("/post2")
+    @PostMapping("/posts")
 //    public Post post2(@RequestBody @Valid PostCreate request) throws Exception {
 //    public Map<String, Long> post2(@RequestBody @Valid PostCreate request) throws Exception {
     public void post2(@RequestBody @Valid PostCreate request) throws Exception {
@@ -50,19 +54,34 @@ public class PostController {
         // Bad case. 서버에서 반드시 이렇게 할겁니다 fix
         // -> 서버에서 유연하게 대응할 수 있도록 코드 짜기
         postService.write(request);
-
     }
 
-    // 단건 조회
+    // 단건 조회 API
     @GetMapping("/posts/{postId}")
-    public Post getPost(@PathVariable(name = "postId") Long id){
+    public PostResponse getPost(@PathVariable(name = "postId") Long id){
 //        Optional<Post> findPost = postService.getPost(id);
-        Post findPost = postService.get(id);
+
+        // Request 클래스 : 요청과 validation 을 담당
+        // Response 클래스 : 서비스 정책에 맞는 로직을 담당
+        // 양자 구분
+
+        PostResponse findPost = postService.get(id);
         return findPost;
     }
 
+    // 게시글 여러 개 조회 API
+    // 단 : 글이 너무 많은 경우 조회 비용(resource, 돈)이 많이 든다
+    // 글 1억개 -> 1억개를 모두 조회해야 함 > DB 다운 될 수 있음
+    // DB -> 어플리케이션 서버로 전달하는 시간, 데이터 > 트래픽 비용 up
+
+    // > 페이징 처리 필요
+//    @GetMapping("/posts")
+//    public List<PostResponse> getList(){
+//        return postService.getList();
+//    }
+
     // Rss 발급 서비스
-    @GetMapping("/posts/{postId}/rss")
+    /*@GetMapping("/posts/{postId}/rss")
     public Post getRss(@PathVariable(name = "postId") Long id){
 //        Optional<Post> findPost = postService.getPost(id);
         Post findPost = postService.getRss(id);
@@ -70,10 +89,21 @@ public class PostController {
         // getTitle 메서드에 따라 10글자로 제한되는 문제 발생
 
         return findPost;
+    }*/
+
+    // post 여러개 조회 + 페이징 처리
+//    @GetMapping("/postsWithPaging/{pageNum}")
+    @GetMapping("/posts")
+//    public List<PostResponse> getListWithPaging(@PageableDefault(size = 5) Pageable pageable){
+//    public List<PostResponse> getListWithPaging(@PageableDefault(size = 5) Pageable pageable){
+    public List<PostResponse> getListWithPaging(@RequestParam PostSearch postSearch){
+        return postService.getListWithPagingQueryDsl(postSearch);
     }
 
+    // post 여러 개 조회 + 페이징 + queryDsl(추천)
 
-    @PostMapping("/posts")
+
+    @PostMapping("/posts5")
     public Map<String, String> post(@RequestBody @Valid String params) throws Exception {
 
         // 데이터를 검증하는 이유

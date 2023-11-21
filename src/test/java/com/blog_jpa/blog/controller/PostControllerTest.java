@@ -6,6 +6,7 @@ import com.blog_jpa.blog.repository.PostRepository;
 import com.blog_jpa.blog.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,11 +14,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 //@SpringBootTest -> 스프링이 관리하는 모든 빈을 등록시켜서 통합 테스트 진행 > 무거움
 //@WebMvcTest
@@ -162,19 +168,79 @@ class PostControllerTest {
 
         // given
         Post post = Post.builder()
-                .title("제목1")
+                .title("asd123456789011121231313")
                 .content("내용1")
                 .build();
 
         postRepository.save(post);
+
+        log.info("post.getTitle() = {}", post.getTitle());
+        log.info("post.getContent() = {}", post.getContent());
+
+        // 클라이언트 요구사항
+        // json 응답에서 title 값 길이를 최대 10글자
+        // post entity <-> PostResponse class
 
         // expected
         mockMvc.perform(MockMvcRequestBuilders.get("/posts/{postId}", post.getId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(post.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("제목1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value("222"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("asd1234567"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value("내용1"))
                 .andDo(MockMvcResultHandlers.print());
+    }
+
+    // 글 여러 개 조회
+    @Test
+    @DisplayName("post 여러 개 조회")
+    public void test5() throws Exception{
+        // given
+        for (int i=0; i<10; i++){
+            PostCreate postList = PostCreate.builder()
+                    .title("제목" + i)
+                    .content("내용" + i)
+                    .build();
+
+            postService.write(postList);
+        }
+
+        //
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(10)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("제목0"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value("내용0"))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    // post 여러 개 + 페이징
+    @Test
+    @DisplayName("post 여러 개 + 페이징")
+    public void test6() throws Exception{
+
+        // given
+        List<Post> postList = IntStream.range(1, 30)
+                .mapToObj( i->{
+                        return Post.builder()
+                                .title("제목" + i)
+                                .content("내용" + i)
+                                .build();
+                        }
+                ).collect(Collectors.toList());
+
+        postRepository.saveAll(postList);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=1&sort=id,desc")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("제목29"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value("내용29"))
+                .andDo(MockMvcResultHandlers.print());
+
     }
 }

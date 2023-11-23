@@ -1,17 +1,15 @@
 package com.blog_jpa.blog.controller;
 
-import com.blog_jpa.blog.domain.entity.Post;
 import com.blog_jpa.blog.dto.request.PostCreate;
+import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -96,8 +94,15 @@ public class PostController {
     @GetMapping("/posts")
 //    public List<PostResponse> getListWithPaging(@PageableDefault(size = 5) Pageable pageable){
 //    public List<PostResponse> getListWithPaging(@PageableDefault(size = 5) Pageable pageable){
-    public List<PostResponse> getListWithPaging(@RequestParam PostSearch postSearch){
+    public List<PostResponse> getListWithPaging(@ModelAttribute PostSearch postSearch){
         return postService.getListWithPagingQueryDsl(postSearch);
+    }
+
+    @PatchMapping ("/posts/{postId}")
+    public void modifyPost(@PathVariable(name = "postId") Long id, @Valid PostEdit request){
+
+        log.info("======= post 수정 called.... ===========");
+        postService.editPost(id, request);
     }
 
     // post 여러 개 조회 + 페이징 + queryDsl(추천)

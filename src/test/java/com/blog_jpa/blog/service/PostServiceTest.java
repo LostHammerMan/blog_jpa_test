@@ -2,6 +2,7 @@ package com.blog_jpa.blog.service;
 
 import com.blog_jpa.blog.domain.entity.Post;
 import com.blog_jpa.blog.dto.request.PostCreate;
+import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.repository.PostRepository;
@@ -175,4 +176,68 @@ class PostServiceTest {
 //        Assertions.assertEquals("post 내용29", posts.get(0).getContent());
     }
 
+    @Test
+    @DisplayName("post 수정")
+    public void test6(){
+
+        Post post = Post.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+
+        log.info("post = {}", post);
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("변경된 제목")
+//                .content("변경된 내용")
+                .build();
+        // when
+        postService.editPost(post.getId(), postEdit);
+
+//        log.info("modifyPost = {}", modifyPost);
+
+        // then
+        Post changePost = postRepository.findById(post.getId()).orElseThrow(() ->
+            new RuntimeException("글이 존재하지 않음")
+        );
+
+        log.info("changePost = {}", changePost);
+        Assertions.assertEquals("변경된 제목", changePost.getTitle());
+        Assertions.assertEquals("내용1", changePost.getContent());
+    }
+
+    @Test
+    @DisplayName("post 수정")
+    public void test7(){
+
+        Post post = Post.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+
+        log.info("post = {}", post);
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+//                .title("변경된 제목")
+//                .content("변경된 내용")
+                .build();
+        // when
+        postService.editPost(post.getId(), postEdit);
+
+//        log.info("modifyPost = {}", modifyPost);
+
+        // then
+        Post changePost = postRepository.findById(post.getId()).orElseThrow(() ->
+                new RuntimeException("글이 존재하지 않음")
+        );
+
+
+        Assertions.assertEquals("제목1", changePost.getTitle());
+        Assertions.assertEquals("내용1", changePost.getContent());
+
+    }
 }

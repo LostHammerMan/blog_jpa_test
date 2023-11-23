@@ -21,7 +21,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         return jpaQueryFactory.selectFrom(post)
                 .limit(postSearch.getSize())
-                .offset((long) (postSearch.getPage() - 1) * postSearch.getSize())
+//                .offset((long) (postSearch.getPage() - 1) * postSearch.getSize())
+                .offset(postSearch.getOffset())
                 .orderBy(post.id.desc())
                 .fetch();
     }

@@ -2,6 +2,7 @@ package com.blog_jpa.blog.controller;
 
 import com.blog_jpa.blog.domain.entity.Post;
 import com.blog_jpa.blog.dto.request.PostCreate;
+import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.repository.PostRepository;
 import com.blog_jpa.blog.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -218,7 +219,7 @@ class PostControllerTest {
 
     // post 여러 개 + 페이징
     @Test
-    @DisplayName("post 여러 개 + 페이징")
+    @DisplayName("페이지를 0 으로 요청하면 첫 페이지를 가져온다.")
     public void test6() throws Exception{
 
         // given
@@ -234,13 +235,45 @@ class PostControllerTest {
         postRepository.saveAll(postList);
 
         // expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=1&sort=id,desc")
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=0&size=10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(10)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("제목29"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value("내용29"))
                 .andDo(MockMvcResultHandlers.print());
+
+    }
+
+    // post 여러 개 + 페이징
+    @Test
+    @DisplayName("post 수정 test")
+    public void test7() throws Exception{
+
+        // given
+        Post post = Post.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("변경된 제목")
+                .content("변경된 내용")
+                .build();
+
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", post.getId())
+                        .content(objectMapper.writeValueAsString(postEdit))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("변경된 제목"))
+//                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value("변경된 내용"))
+                .andDo(MockMvcResultHandlers.print());
+
+        log.info("postEdit = {}", postEdit);
 
     }
 }

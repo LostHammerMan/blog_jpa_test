@@ -1,7 +1,9 @@
 package com.blog_jpa.blog.service;
 
 import com.blog_jpa.blog.domain.entity.Post;
+import com.blog_jpa.blog.domain.entity.PostEditor;
 import com.blog_jpa.blog.dto.request.PostCreate;
+import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.repository.PostRepository;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,5 +114,65 @@ public class PostService {
         return postRepository.getListWithQuerydsl(postSearch).stream()
                 .map(post -> new PostResponse(post))
                 .collect(Collectors.toList());
+    }
+
+    // 글 수정
+    @Transactional
+    public void editPost(Long id, PostEdit postEdit){
+        log.info("============ edit post called ==============");
+        Post post = postRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 글입니다")
+        );
+
+        log.info("post = {}", post.getTitle());
+        log.info("post = {}", post.getContent());
+
+        // 엔티티에 직접적인 setter 지양
+//        post.setTitle(postEdit.getTitle());
+//        post.setContent(postEdit.getContent());
+//        post.modifyPost(postEdit);
+
+        // Editor 사용
+        /*PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
+
+        // 제목 수정 > PostEditor 생성자로 대체 가능
+        if (postEdit.getTitle() != null){
+            editorBuilder
+                    .title(postEdit.getTitle());
+            // else 구문의 경우, Post에 이미 기본값 만들어 놔서 불필요
+        }else {
+            editorBuilder.title(post.getTitle());
+        }
+
+        // 내용 수정 > PostEditor 생성자로 대체 가능
+        if (postEdit.getContent() != null){
+            editorBuilder.content(postEdit.getContent());
+        }else {
+            editorBuilder.content(post.getContent());
+        }*/
+
+        // 위 빌더에서 fix(build()) 를 하지 않았기 때문에 필요한 부분 호출 후 fix(build)
+        /*PostEditor postEditor = editorBuilder
+                .title(postEdit.getTitle())
+                .content(postEdit.getContent())
+                .build();*/
+
+        // 제목 수정
+        if (postEdit.getTitle() == null){
+            postEdit.setTitle(post.getTitle());
+        }
+
+        // 내용
+        if (postEdit.getContent() == null){
+            postEdit.setContent(post.getContent());
+        }
+
+         post.edit(postEdit.getTitle(), postEdit.getContent());
+
+
+//        Post modifyPost = postRepository.save(post); //  @Transactional 사용하면 save(0 호출하지 않아도 됨
+        log.info("modifiedPost = {}", post);
+//        return new PostResponse(post);
+//        return modifyPost;
     }
 }

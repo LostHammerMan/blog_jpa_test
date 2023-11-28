@@ -4,6 +4,7 @@ import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
+import com.blog_jpa.blog.exception.InvalidRequest;
 import com.blog_jpa.blog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,13 @@ public class PostController {
         // repository.save(params)
         log.info("post2 called..............");
 
+        // 컨트롤러에서 데이터를 직접 꺼내와 검증하는 것은 지양 ! -> request.validate() 처럼 메서드만 호출
+        /*if (request.getTitle().contains("바보")){
+            throw new InvalidRequest();
+        }*/
+
+        postService.write(request);
+
         // DB 에 저장한 형태를 그대로 내려줌
         // case1 . 저장한 데이터 entity -> response 로 응답하기
 //        return postService.write(request);
@@ -51,7 +59,6 @@ public class PostController {
         // case3 . 응답이 필요없는 경우 -> 클라이언트에서 모든 post(글) 데이터 context 잘 관리
         // Bad case. 서버에서 반드시 이렇게 할겁니다 fix
         // -> 서버에서 유연하게 대응할 수 있도록 코드 짜기
-        postService.write(request);
     }
 
     // 단건 조회 API
@@ -99,14 +106,16 @@ public class PostController {
     }
 
     @PatchMapping ("/posts/{postId}")
-    public void modifyPost(@PathVariable(name = "postId") Long id, @Valid PostEdit request){
+    public void modifyPost(@PathVariable(name = "postId") Long id, PostEdit postEdit){
 
         log.info("======= post 수정 called.... ===========");
-        postService.editPost(id, request);
+        postService.editPost(id, postEdit);
     }
 
-    // post 여러 개 조회 + 페이징 + queryDsl(추천)
-
+    @DeleteMapping("/posts/{postId}")
+    public void deletePost(@PathVariable(name = "postId") Long id){
+        postService.delete(id);
+    }
 
     @PostMapping("/posts5")
     public Map<String, String> post(@RequestBody @Valid String params) throws Exception {

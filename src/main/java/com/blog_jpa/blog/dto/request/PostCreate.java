@@ -1,5 +1,6 @@
 package com.blog_jpa.blog.dto.request;
 
+import com.blog_jpa.blog.exception.InvalidRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -31,6 +32,13 @@ public class PostCreate {
                 .title(title)
                 .content(content)
                 .build();
+    }
+
+    // validation
+    public void validate(){
+        if (title.contains("바보")){
+            throw new InvalidRequest();
+        }
     }
 
     // 빌더의 장점 - 면접 대비

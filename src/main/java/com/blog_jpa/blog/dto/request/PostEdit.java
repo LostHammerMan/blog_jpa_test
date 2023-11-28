@@ -13,10 +13,10 @@ import lombok.ToString;
 @ToString
 public class PostEdit {
 
-    @NotBlank(message = "제목 입력")
+    @NotBlank(message = "제목입력")
     private String title;
 
-    @NotBlank(message = "내용 입력")
+    @NotBlank(message = "내용입력")
     private String content;
 
     @Builder

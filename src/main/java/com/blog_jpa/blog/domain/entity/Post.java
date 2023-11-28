@@ -29,9 +29,9 @@ public class Post {
         this.content = content;
     }
 
-    public void edit(String title, String content){
-        this.title = title;
-        this.content = content;
+    public void edit(PostEdit postEdit){
+        this.title = postEdit.getTitle() != null ? postEdit.getTitle() : this.getTitle();
+        this.content = postEdit.getContent() != null ? postEdit.getContent() : this.getContent();
     }
 
     // 수정 메서드 1

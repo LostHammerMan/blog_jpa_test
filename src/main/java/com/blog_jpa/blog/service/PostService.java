@@ -6,6 +6,7 @@ import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
+import com.blog_jpa.blog.exception.PostNotFoundException;
 import com.blog_jpa.blog.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,10 @@ public class PostService {
 //    }
     public PostResponse get(Long id){
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글이네요"));
+
+                // 비즈니스에 맞는 Exception 생성
+                .orElseThrow(() -> new PostNotFoundException());
 
         // 서비스 정책에 맞는 전용 클래스 사용하는 경우
         PostResponse postResponse = PostResponse.builder()
@@ -121,11 +125,15 @@ public class PostService {
     public void editPost(Long id, PostEdit postEdit){
         log.info("============ edit post called ==============");
         Post post = postRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("존재하지 않는 글입니다")
+                new PostNotFoundException()
         );
 
         log.info("post = {}", post.getTitle());
         log.info("post = {}", post.getContent());
+
+//        post.edit(postEdit.getTitle() != null ? postEdit.getTitle() : post.getTitle(),
+//                postEdit.getContent() != null ? postEdit.getContent() : post.getContent());
+        post.edit(postEdit);
 
         // 엔티티에 직접적인 setter 지양
 //        post.setTitle(postEdit.getTitle());
@@ -158,21 +166,29 @@ public class PostService {
                 .build();*/
 
         // 제목 수정
-        if (postEdit.getTitle() == null){
+        /*if (postEdit.getTitle() == null){
             postEdit.setTitle(post.getTitle());
         }
 
         // 내용
         if (postEdit.getContent() == null){
             postEdit.setContent(post.getContent());
-        }
+        }*/
 
-         post.edit(postEdit.getTitle(), postEdit.getContent());
+
 
 
 //        Post modifyPost = postRepository.save(post); //  @Transactional 사용하면 save(0 호출하지 않아도 됨
         log.info("modifiedPost = {}", post);
 //        return new PostResponse(post);
 //        return modifyPost;
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(
+                () -> new PostNotFoundException()
+        );
+        postRepository.deleteById(post.getId());
     }
 }

@@ -5,6 +5,7 @@ import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.repository.PostRepository;
 import com.blog_jpa.blog.service.PostService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
@@ -257,6 +258,7 @@ class PostControllerTest {
                 .build();
 
         postRepository.save(post);
+        log.info("post.getId={}", post.getId());
 
         PostEdit postEdit = PostEdit.builder()
                 .title("변경된 제목")
@@ -266,14 +268,105 @@ class PostControllerTest {
 
         // expected
         mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", post.getId())
-                        .content(objectMapper.writeValueAsString(postEdit))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
+
 //                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("변경된 제목"))
 //                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value("변경된 내용"))
                 .andDo(MockMvcResultHandlers.print());
 
         log.info("postEdit = {}", postEdit);
 
+    }
+
+    @Test
+    @DisplayName("post 삭제 테스트")
+    public void postDelete() throws Exception {
+
+        // given
+        List<Post> postList = IntStream.range(1, 30)
+                .mapToObj(i -> {
+                    return Post.builder()
+                            .title("title" + i)
+                            .content("content" + i)
+                            .build();
+                }).toList();
+
+        postRepository.saveAll(postList);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/posts/{postId}", postList.get(0).getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 조회")
+    public void test8() throws Exception{
+
+        // given
+        Post post = Post.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+
+        // then
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts/{postId}", 3L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    //
+    @Test
+    @DisplayName("post 수정 - 존재하지 않는 글")
+    public void test9() throws Exception{
+
+        // given
+        Post post = Post.builder()
+                .title("제목1")
+                .content("내용1")
+                .build();
+
+        postRepository.save(post);
+        log.info("post.getId = {}", post.getId());
+
+        // when
+        PostEdit postEdit = PostEdit.builder()
+                .title("변경된 제목")
+                .content("변경된 내용")
+                .build();
+
+        log.info("postEdit = {}", postEdit);
+
+        // then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", post.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("post 작성 - 제목에 바보는 포함될 수 없음")
+    public void test10() throws Exception {
+
+        Post post = Post.builder()
+                .title("나는 바보입니다")
+                .content("내용1")
+                .build();
+
+        postRepository.save(post);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(post)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
     }
 }

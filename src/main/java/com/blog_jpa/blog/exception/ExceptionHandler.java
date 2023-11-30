@@ -56,7 +56,18 @@ public class ExceptionHandler {
        ErrorResponse responseBody = ErrorResponse.builder()
                 .code(String.valueOf(statusCode))
                 .message(e.getMessage())
+                .validation(e.getValidation())
                 .build();
+
+       // 응답 json validation -> title : "제목에 바보를 포함할 수 없습니다"
+       // 위 responsebody 의 빌더를 이용해 처리
+//       if (e instanceof InvalidRequest){
+//           InvalidRequest invalidRequest = (InvalidRequest) e;
+//           String fieldName = invalidRequest.getFieldName();
+//           String message = invalidRequest.getMessage();
+//           responseBody.addValidation(fieldName, message);
+//
+//       }
 
        ResponseEntity<ErrorResponse> response = ResponseEntity.status(statusCode)
                .body(responseBody);

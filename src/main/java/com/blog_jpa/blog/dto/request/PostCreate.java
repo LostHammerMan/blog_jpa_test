@@ -37,7 +37,7 @@ public class PostCreate {
     // validation
     public void validate(){
         if (title.contains("바보")){
-            throw new InvalidRequest();
+            throw new InvalidRequest("title", "제목에 바보를 넣을 수 없음!!");
         }
     }
 

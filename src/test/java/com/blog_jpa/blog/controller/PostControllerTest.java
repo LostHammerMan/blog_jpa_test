@@ -369,4 +369,15 @@ class PostControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
+
+    // API 문서 생성
+
+    // 클라이언트 입장에서는 어떤 API 있는지 모름
+    // > 만든 API 를 문서화해서 전달할 필요 있음
+
+    // spring RestDocs 를 이용해 문서화
+    // 장 > 운영코드에 영향 없음
+    //    > Test 케이스 실행 -> 통과시 문서 생성
+
+
 }

@@ -44,7 +44,7 @@ public class PostController {
         /*if (request.getTitle().contains("바보")){
             throw new InvalidRequest();
         }*/
-
+        request.validate();
         postService.write(request);
 
         // DB 에 저장한 형태를 그대로 내려줌

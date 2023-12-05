@@ -30,8 +30,11 @@ public class Post {
     }
 
     public void edit(PostEdit postEdit){
+
         this.title = postEdit.getTitle() != null ? postEdit.getTitle() : this.getTitle();
         this.content = postEdit.getContent() != null ? postEdit.getContent() : this.getContent();
+//        this.title = title;
+//        this.content = content;
     }
 
     // 수정 메서드 1

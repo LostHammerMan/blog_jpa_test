@@ -54,7 +54,7 @@ class PostControllerTest {
 
 
     @Test
-    @DisplayName("/posts 요청시 hello world 출력")
+    @DisplayName("글 작성 요청시 hello world 출력")
     void test() throws Exception {
 
         // 글 제목
@@ -116,7 +116,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("write test")
+    @DisplayName("글 작성 요청시 DB 에 값이 저장")
     public void test3() throws Exception {
 
         // before
@@ -131,6 +131,7 @@ class PostControllerTest {
                 .content("내용입니다44")
                 .build();
 
+
 //        PostCreate request2 = request.changeTitle("제목임55");
 
         // json 으로 변환해주는 Jackson library 사용(필수 암기)
@@ -143,7 +144,10 @@ class PostControllerTest {
 
 
         // when
-        mockMvc.perform(MockMvcRequestBuilders.post("/post2")
+//        mockMvc.perform(MockMvcRequestBuilders.post("/posts?authorization=hodolMan")
+        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+//                        .header("authorization", "hodolMan")
+                        .header("authorization", "")
                         .contentType(MediaType.APPLICATION_JSON)
 //                        .content("{\"title\" : \"제목입니다\", \"content\" : \"내용입니다\"}"))
                         .content(json))
@@ -268,6 +272,7 @@ class PostControllerTest {
 
         // expected
         mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", post.getId())
+                        .header("authorization", "hodolMan")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(MockMvcResultMatchers.status().isOk())

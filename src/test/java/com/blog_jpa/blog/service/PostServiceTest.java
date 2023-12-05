@@ -228,8 +228,8 @@ class PostServiceTest {
         postRepository.save(post);
 
         PostEdit postEdit = PostEdit.builder()
-//                .title("변경된 제목")
-                .title(null)
+                .title("변경된 제목")
+//                .title(null)
                 .content("변경된 내용")
                 .build();
         // when

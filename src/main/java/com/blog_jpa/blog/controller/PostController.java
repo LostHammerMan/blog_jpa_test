@@ -1,11 +1,14 @@
 package com.blog_jpa.blog.controller;
 
+import com.blog_jpa.blog.config.data.UserSession;
 import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.exception.InvalidRequest;
 import com.blog_jpa.blog.service.PostService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +36,29 @@ public class PostController {
     // post -> 200, 201
     // post 요청은 일반적으로 void
     // but 응답데이터를 달라고 클라이언트에서 요청하는 경우
+
+    // 인증된 사용자만 접근가능하게
+//    @GetMapping("/test")
+//    public String test(){
+//        return "hello";
+//    }
+
+    // 모두 접근 가능
+    @GetMapping("/foo")
+    public Long test(UserSession userSession){
+//    public String test(@RequestAttribute(name = "userName") String username){
+//        String accessToken = request.getParameter("accessToken");
+// @RequestAttribute : setAttribute() 로 넘긴 값을 받을 떄 사용
+        log.info("UserSession.name = {}", userSession.id);
+        return userSession.id;
+    }
+
     @PostMapping("/posts")
 //    public Post post2(@RequestBody @Valid PostCreate request) throws Exception {
 //    public Map<String, Long> post2(@RequestBody @Valid PostCreate request) throws Exception {
+//    public void post2(@RequestBody @Valid PostCreate request, @RequestParam(required = true) String authorization) throws Exception {
+//    public void post2(@RequestBody @Valid PostCreate request, @RequestParam(required = true) String authorization) throws Exception {
+//    public void post2(@RequestBody @Valid PostCreate request, @RequestHeader String authorization) throws Exception {
     public void post2(@RequestBody @Valid PostCreate request) throws Exception {
         // repository.save(params)
         log.info("post2 called..............");
@@ -44,8 +67,26 @@ public class PostController {
         /*if (request.getTitle().contains("바보")){
             throw new InvalidRequest();
         }*/
+
+        // 인증 방식
+        /* 1. GET parameter
+            > URL 에 데이터 포함시켜 전송, ex) /posts?authorization=hodolMan
+            > 일반적으로 URL은 resource의 구분을 위한것 불필요한 로직이 들어감
+            > 쉽게 조작가능
+        *  2. Post(body) value > 글 작성과 무관한 로직이 들어가 비추천
+
+        *  3. Header > 추천
+        * */
+//        if (authorization.equals("hodolMan")){
+//            request.validate();
+//            postService.write(request);
+//        }
         request.validate();
         postService.write(request);
+
+
+//        request.validate();
+//        postService.write(request);
 
         // DB 에 저장한 형태를 그대로 내려줌
         // case1 . 저장한 데이터 entity -> response 로 응답하기
@@ -106,14 +147,25 @@ public class PostController {
     }
 
     @PatchMapping ("/posts/{postId}")
-    public void modifyPost(@PathVariable(name = "postId") Long id, PostEdit postEdit){
+    public void modifyPost(@PathVariable(name = "postId") Long id, @RequestBody @Valid PostEdit postEdit
+//    public void modifyPost(@PathVariable(name = "postId") Long id, @RequestBody @Valid PostEdit postEdit
+    ){
+        log.info("postEdit.title = {}", postEdit.getTitle());
+        log.info("postEdit.content = {}", postEdit.getContent());
 
         log.info("======= post 수정 called.... ===========");
+//        if (authorization.equals("hodolMan")){
+//        }
         postService.editPost(id, postEdit);
+
     }
 
     @DeleteMapping("/posts/{postId}")
+//    public void deletePost(@PathVariable(name = "postId") Long id, @RequestParam String authorization){
     public void deletePost(@PathVariable(name = "postId") Long id){
+//        if (authorization.equals("hodolMan")){
+//
+//        }
         postService.delete(id);
     }
 

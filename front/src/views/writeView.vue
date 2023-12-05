@@ -1,28 +1,42 @@
 <script setup lang="ts">
+
 import {ref} from "vue";
+import axios from "axios";
+import {useRouter} from "vue-router";
+
 
 const count = ref(0); // 반응형 변수 만들기
 const title = ref("")
 const content = ref("")
+const router = useRouter()
 
+// 서버로 데이터를 요청할 때 axios 라이브러리 활용
 const write = function (){
-  console.log(title, content)
+  axios.post("/api/posts", { // 프록시를 두고 연결 > vite.config.ts
+    title : title.value,
+    content : content.value
+  })
+      .then(() => {
+        router.replace({name: "home"});
+      })
+
 }
+
+
 </script>
 
 <template>
-  <!--  <p>안녕하세요</p> <button @click="count += 1">버튼을 눌러주세요</button>-->
-  <!--  <p>{{count}}</p>-->
-  <div class="d-flex mb-2">
-    <el-input placeholder="제목 입력" v-model="title"></el-input>
-  </div>
-
-  <div class="">
-    <div class="d-flex mb-3">
-      <el-input type="textarea" placeholder="내용 입력" v-model="content"></el-input>
-    </div>
+  <div class="d-flex item" style="flex-direction: column">
     <div>
-      <el-button type="primary" @click="write">글 작성</el-button>
+    <el-input placeholder="제목 입력" v-model="title"></el-input>
+    </div>
+
+    <div class="mt-3">
+    <el-input type="textarea" placeholder="내용 입력" v-model="content"></el-input>
+    </div>
+
+    <div class="mt-3">
+    <el-button type="primary" @click="write">글 작성</el-button>
     </div>
   </div>
 </template>

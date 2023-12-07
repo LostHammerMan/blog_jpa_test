@@ -1,7 +1,10 @@
 package com.blog_jpa.blog.config.resolver;
 
 import com.blog_jpa.blog.config.data.UserSession;
+import com.blog_jpa.blog.domain.entity.Session;
 import com.blog_jpa.blog.exception.Unauthorized;
+import com.blog_jpa.blog.repository.SessionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -9,7 +12,12 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.Optional;
+
+@RequiredArgsConstructor
 public class AuthResolver implements HandlerMethodArgumentResolver {
+
+    private final SessionRepository sessionRepository;
 
     // 요청으로 넘어온 dto 를 지원하는지 확인
     @Override
@@ -32,9 +40,10 @@ public class AuthResolver implements HandlerMethodArgumentResolver {
         }
 
         // DB 사용자 존재 여부 확인
-
+        Session session = sessionRepository.findByAccessToken(accessToken)
+                .orElseThrow(() -> new Unauthorized());
 
         // 값 할당
-        return new UserSession(1L);
+        return new UserSession(session.getUser().getId());
     }
 }

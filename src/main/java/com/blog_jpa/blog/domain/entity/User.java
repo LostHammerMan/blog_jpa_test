@@ -11,7 +11,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Getter
-@ToString
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +28,7 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Session> sessions = new ArrayList<>();
 
-    // 세션 발급
+    // 세션 발급(연관관계 메서드)
     public Session addSession(){
         Session session = Session.builder()
                 .user(this)

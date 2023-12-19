@@ -43,7 +43,7 @@ public class PostController {
 //        return "hello";
 //    }
 
-    // 모두 접근 가능
+    // UserSession 을 파라미터로 받는 경우, ArgumentResolver 를 통해 인증받도록 함
     @GetMapping("/foo")
     public Long test(UserSession userSession){
 //    public String test(@RequestAttribute(name = "userName") String username){

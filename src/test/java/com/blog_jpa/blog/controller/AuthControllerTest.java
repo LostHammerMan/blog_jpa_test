@@ -3,6 +3,7 @@ package com.blog_jpa.blog.controller;
 import com.blog_jpa.blog.domain.entity.Session;
 import com.blog_jpa.blog.domain.entity.User;
 import com.blog_jpa.blog.dto.request.Login;
+import com.blog_jpa.blog.dto.request.SignUpDto;
 import com.blog_jpa.blog.exception.InvalidSigningInformation;
 import com.blog_jpa.blog.exception.Unauthorized;
 import com.blog_jpa.blog.repository.SessionRepository;
@@ -202,5 +203,47 @@ class AuthControllerTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
+    @Test
+    @DisplayName("로그인 후 권한이 필요한 페이지 접속한다 /foo")
+    void test6() throws Exception{
+
+        // given
+        User user = User.builder()
+                .email("333@333")
+                .password("1234")
+                .name("금강선")
+                .build();
+
+        Session session = user.addSession();
+        userRepository.save(user);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/foo")
+                        .header("authorization", session.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원가입")
+    void test7() throws Exception {
+
+        // given
+        SignUpDto signUpDto = SignUpDto.builder()
+                .name("금강선")
+                .password("1234")
+                .email("111@111").build();
+//        String loginJson = objectMapper.writeValueAsString(login);
+
+        String json = objectMapper.writeValueAsString(signUpDto);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.post("/auth/signUp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
 
 }

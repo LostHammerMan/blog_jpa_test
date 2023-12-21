@@ -41,7 +41,7 @@ public class AuthController {
 
     // DB 통한 검증
 //    @PostMapping("/auth/login")
-    public SessionResponse login(@RequestBody Login login){
+    public SessionResponse login4(@RequestBody Login login){
 
         // json 아이디, 비번
 //        log.info("\t login = {}", login);
@@ -53,7 +53,7 @@ public class AuthController {
 
     // JWT
     @PostMapping("/auth/login")
-    public SessionResponse login2(@RequestBody Login login/*, HttpServletResponse response*/){
+    public SessionResponse login5(@RequestBody Login login/*, HttpServletResponse response*/){
 
         // json 아이디, 비번
         log.info("\t login = {}", login);

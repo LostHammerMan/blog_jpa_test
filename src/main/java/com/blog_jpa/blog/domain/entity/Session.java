@@ -18,12 +18,12 @@ public class Session {
 
     private String accessToken;
 
-    @ManyToOne
-    private User user;
+//    @ManyToOne
+//    private User user;
 
-    @Builder
-    public Session(User user) {
-        this.accessToken = UUID.randomUUID().toString();
-        this.user = user;
-    }
+//    @Builder
+//    public Session(User user) {
+//        this.accessToken = UUID.randomUUID().toString();
+//        this.user = user;
+//    }
 }

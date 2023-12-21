@@ -25,18 +25,18 @@ public class User {
     private LocalDateTime createAt = LocalDateTime.now();
 
     // 유저 한명 -- 세션 여러 개 (일대다)
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Session> sessions = new ArrayList<>();
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+//    private List<Session> sessions = new ArrayList<>();
 
     // 세션 발급(연관관계 메서드)
-    public Session addSession(){
-        Session session = Session.builder()
-                .user(this)
-                .build();
-
-        sessions.add(session);
-        return session;
-    }
+//    public Session addSession(){
+//        Session session = Session.builder()
+//                .user(this)
+//                .build();
+//
+//        sessions.add(session);
+//        return session;
+//    }
 
     @Builder
     public User(String name, String email, String password) {

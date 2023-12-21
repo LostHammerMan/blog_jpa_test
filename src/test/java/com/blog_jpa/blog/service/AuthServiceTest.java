@@ -1,8 +1,12 @@
 package com.blog_jpa.blog.service;
 
+import com.blog_jpa.blog.crypto.PasswordEncoder;
+import com.blog_jpa.blog.crypto.ScryptPasswordEncoder;
 import com.blog_jpa.blog.domain.entity.User;
+import com.blog_jpa.blog.dto.request.Login;
 import com.blog_jpa.blog.dto.request.SignUpDto;
 import com.blog_jpa.blog.exception.AlreadyExistUserException;
+import com.blog_jpa.blog.exception.InvalidSigningInformation;
 import com.blog_jpa.blog.repository.UserRepository;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -10,11 +14,13 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
+@ActiveProfiles("test")
 @SpringBootTest
 class AuthServiceTest {
 
@@ -24,15 +30,82 @@ class AuthServiceTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void clean(){
         userRepository.deleteAll();
     }
 
     @Test
+    @DisplayName("로그인 성공")
+    void test0(){
+
+        // given
+//        PasswordEncoder passwordEncoder = new PasswordEncoder();
+        String encryptedPassword = passwordEncoder.encrypt("1234");
+
+        User user = User.builder()
+                .email("111@111")
+                .name("은강선")
+                .password(encryptedPassword)
+                .build();
+
+        userRepository.save(user);
+
+
+        // authService 의 코드가 달라지면 영향을 받으므로 userRepository 로 접근
+
+
+        Login login = Login.builder()
+                .email("111@111")
+                .password("1234")
+                .build();
+
+
+        // when
+        Long userId = authService.signIn(login);
+
+        // then
+//        Assertions.assertEquals(1, userRepository.count());
+//        Assertions.assertEquals("금강선", userRepository.findAll().get(0).getName());
+//        Assertions.assertEquals("111@111", userRepository.findAll().get(0).getEmail());
+//        Assertions.assertNotEquals("1234", userRepository.findAll().get(0).getPassword());
+        Assertions.assertNotNull(userId);
+        Assertions.assertTrue(passwordEncoder.matches(login.getPassword(), user.getPassword()));
+
+    }
+
+    @Test
+    @DisplayName("로그인 실패 - 비밀번호 틀림")
+    void test0_1(){
+
+        // given
+        SignUpDto signUpDto = SignUpDto.builder()
+                .name("금강선")
+                .password("1234")
+                .email("111@111").build();
+
+        authService.signUp(signUpDto);
+
+        Login login = Login.builder()
+                .email("111@111")
+                .password("5678")
+                .build();
+
+
+        // then
+        Assertions.assertThrows(InvalidSigningInformation.class, () ->authService.signIn(login));
+
+    }
+
+
+    @Test
     @DisplayName("회원 가입 성공")
     void test1(){
 
+//        PasswordEncoder passwordEncoder = new PasswordEncoder();
         // given
         SignUpDto signUpDto = SignUpDto.builder()
                 .name("금강선")
@@ -42,13 +115,15 @@ class AuthServiceTest {
         // when
         authService.signUp(signUpDto);
 
+        User findUser = userRepository.findAll().get(0);
+
         // then
         Assertions.assertEquals(1, userRepository.count());
         Assertions.assertEquals("금강선", userRepository.findAll().get(0).getName());
         Assertions.assertEquals("111@111", userRepository.findAll().get(0).getEmail());
-        Assertions.assertNotEquals("1234", userRepository.findAll().get(0).getPassword());
-
+        Assertions.assertTrue(passwordEncoder.matches("1234", findUser.getPassword()));
     }
+
 
     @Test
     @DisplayName("회원 가입시 중복된 이메일")

@@ -1,12 +1,32 @@
-### 로그인
-
-POST http://localhost:8888/auth/login
+## 회원가입
+POST http://localhost:8888/auth/signUp
 Content-Type: application/json
 
 {
-  "email": "333@333",
-  "password": "1234"
+  "name" : "금강선",
+  "email" : "ccc@ccc",
+  "password" : "1234"
 }
+
+
+### 로그인
+
+POST http://localhost:8888/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=ccc@ccc&password=1234&remember=1
+
+### 메인 페이지
+GET http://localhost:8888
+
+### 사용자 페이지
+GET http://localhost:8888/user
+
+### 관리자 페이지
+GET http://localhost:8888/admin
+
+
+
 
 ### 인증 페이지 요청
 

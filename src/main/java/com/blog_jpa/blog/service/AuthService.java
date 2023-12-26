@@ -1,7 +1,5 @@
 package com.blog_jpa.blog.service;
 
-import com.blog_jpa.blog.crypto.PasswordEncoder;
-import com.blog_jpa.blog.crypto.ScryptPasswordEncoder;
 import com.blog_jpa.blog.domain.entity.User;
 import com.blog_jpa.blog.dto.request.Login;
 import com.blog_jpa.blog.dto.request.SignUpDto;
@@ -10,6 +8,7 @@ import com.blog_jpa.blog.exception.InvalidSigningInformation;
 import com.blog_jpa.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +20,10 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 로컬인 경우 PlainPasswordEncoder, 운영서버의 경우 ScryptPasswordEncoder
-    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder passwordEncoder;
 
     // 로그인
     @Transactional
@@ -53,13 +53,14 @@ public class AuthService {
         // 일치 여부 확인
 //        boolean matches = encoder.matches(login.getPassword(), findUser.getPassword());
 
-        boolean matches = passwordEncoder.matches(login.getPassword(), findUser.getPassword());
+//        boolean matches = passwordEncoder.matches(login.getPassword(), findUser.getPassword());
 
-        if (!matches){
-            throw new InvalidSigningInformation();
-        }
-
-        return findUser.getId();
+//        if (!matches){
+//            throw new InvalidSigningInformation();
+//        }
+//
+//        return findUser.getId();
+        return null;
     }
 
     // 회원 가입
@@ -73,6 +74,16 @@ public class AuthService {
             throw new AlreadyExistUserException();
         }
 
+        String encodePassword = passwordEncoder.encode(signUpDto.getPassword());
+
+        User user = User.builder()
+                .name(signUpDto.getName())
+                .email(signUpDto.getEmail())
+                .password(encodePassword)
+                .build();
+
+        userRepository.save(user);
+
 //        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(16,
 //                8,
 //                1,
@@ -80,15 +91,15 @@ public class AuthService {
 //                64);
 //        String encryptPassword = encoder.encode(signUpDto.getPassword());
 //        PasswordEncoder passwordEncoder = new PasswordEncoder();
-        String encryptPassword = passwordEncoder.encrypt(signUpDto.getPassword());
+//        String encryptPassword = passwordEncoder.encrypt(signUpDto.getPassword());
 
         // 엔티티로 변환
-        User user = User.builder()
-                .name(signUpDto.getName())
-                .password(encryptPassword)
-                .email(signUpDto.getEmail())
-                .build();
-
-        userRepository.save(user);
+//        User user = User.builder()
+//                .name(signUpDto.getName())
+//                .password(encryptPassword)
+//                .email(signUpDto.getEmail())
+//                .build();
+//
+//        userRepository.save(user);
     }
 }

@@ -6,23 +6,15 @@ import com.blog_jpa.blog.dto.request.SignUpDto;
 import com.blog_jpa.blog.dto.response.SessionResponse;
 import com.blog_jpa.blog.service.AuthService;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import jakarta.security.auth.message.config.AuthConfig;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
-import java.time.Duration;
-import java.util.Base64;
 import java.util.Date;
 
 // id, pwd 를 받아 토큰 발급
@@ -37,7 +29,10 @@ public class AuthController {
 
 //        private final String KEY = "ur69aMjgadSPyXX1BXJ/eRVCdkvi9ah7cdxHHB35kxI=";
 
-
+    @GetMapping("/auth/login")
+    public String login(){
+        return "로그인 페이지";
+    }
 
     // DB 통한 검증
 //    @PostMapping("/auth/login")

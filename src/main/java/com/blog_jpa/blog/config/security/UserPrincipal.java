@@ -20,7 +20,7 @@ public class UserPrincipal extends User {
     public UserPrincipal(com.blog_jpa.blog.domain.entity.User findUser){
         // role 을 만들기 위해서는 ROLE_ + user 등으로 사용 / 없으면 권한
         super(findUser.getEmail(), findUser.getPassword(), List.of(
-                new SimpleGrantedAuthority("ROLE_ADMIN"),
+                new SimpleGrantedAuthority("ROLE_USER"),
                 // ROLE prefix 를 빼는 경우 authority
                 new SimpleGrantedAuthority("WRITE")));
         this.userId = findUser.getId();

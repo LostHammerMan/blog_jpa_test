@@ -4,17 +4,12 @@ import com.blog_jpa.blog.config.handler.Http401Handler;
 import com.blog_jpa.blog.config.handler.Http403Handler;
 import com.blog_jpa.blog.config.handler.LoginFailHandler;
 import com.blog_jpa.blog.domain.entity.User;
-import com.blog_jpa.blog.exception.InvalidSigningInformation;
 import com.blog_jpa.blog.repository.UserRepository;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.util.logging.Log;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -24,22 +19,16 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import java.io.IOException;
-import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity(debug = true)
 @Slf4j
 public class SecurityConfig { // 스프링 시큐리티 6 부터 extends 가 아닌 Bean 주입 방식으로 변화
+
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
@@ -83,11 +72,11 @@ public class SecurityConfig { // 스프링 시큐리티 6 부터 extends 가 아
                     .defaultSuccessUrl("/") // form 로그인 성공시 이동할 url
                     .usernameParameter("username")
                     .passwordParameter("password")
-                    .failureHandler(new LoginFailHandler())
+                    .failureHandler(new LoginFailHandler(new ObjectMapper()))
                 .and()
                 .exceptionHandling(e -> {
-                    e.accessDeniedHandler(new Http403Handler());
-                    e.authenticationEntryPoint(new Http401Handler()); // 로그인이 필요하다고 요청하는 핸들러
+                    e.accessDeniedHandler(new Http403Handler(new ObjectMapper()));
+                    e.authenticationEntryPoint(new Http401Handler(new ObjectMapper())); // 로그인이 필요하다고 요청하는 핸들러
 
                 })
                 // 'remember' parameter 와 왔을 떄 활성화

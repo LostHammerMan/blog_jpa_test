@@ -1,17 +1,17 @@
 package com.blog_jpa.blog.controller;
 
 import com.blog_jpa.blog.config.data.UserSession;
+import com.blog_jpa.blog.config.security.UserPrincipal;
 import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
-import com.blog_jpa.blog.exception.InvalidRequest;
 import com.blog_jpa.blog.service.PostService;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,13 +53,16 @@ public class PostController {
         return userSession.id;
     }
 
+    // 게시글 작성
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN') && #request.userId = '1L'")
     @PostMapping("/posts")
 //    public Post post2(@RequestBody @Valid PostCreate request) throws Exception {
 //    public Map<String, Long> post2(@RequestBody @Valid PostCreate request) throws Exception {
 //    public void post2(@RequestBody @Valid PostCreate request, @RequestParam(required = true) String authorization) throws Exception {
 //    public void post2(@RequestBody @Valid PostCreate request, @RequestParam(required = true) String authorization) throws Exception {
 //    public void post2(@RequestBody @Valid PostCreate request, @RequestHeader String authorization) throws Exception {
-    public void post2(@RequestBody @Valid PostCreate request) throws Exception {
+    public void post2(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid PostCreate request) throws Exception {
         // repository.save(params)
         log.info("post2 called..............");
 
@@ -82,7 +85,7 @@ public class PostController {
 //            postService.write(request);
 //        }
         request.validate();
-        postService.write(request);
+        postService.write(userPrincipal.getUserId(), request);
 
 
 //        request.validate();
@@ -146,6 +149,7 @@ public class PostController {
         return postService.getListWithPagingQueryDsl(postSearch);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping ("/posts/{postId}")
     public void modifyPost(@PathVariable(name = "postId") Long id, @RequestBody @Valid PostEdit postEdit
 //    public void modifyPost(@PathVariable(name = "postId") Long id, @RequestBody @Valid PostEdit postEdit
@@ -160,6 +164,8 @@ public class PostController {
 
     }
 
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#id, 'POST', 'DELETE')")
     @DeleteMapping("/posts/{postId}")
 //    public void deletePost(@PathVariable(name = "postId") Long id, @RequestParam String authorization){
     public void deletePost(@PathVariable(name = "postId") Long id){

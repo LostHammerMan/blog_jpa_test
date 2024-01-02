@@ -1,33 +1,25 @@
 package com.blog_jpa.blog.service;
 
 import com.blog_jpa.blog.domain.entity.Post;
+import com.blog_jpa.blog.domain.entity.User;
 import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.exception.PostNotFoundException;
 import com.blog_jpa.blog.repository.PostRepository;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.blog_jpa.blog.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
-import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SpringBootTest
@@ -39,6 +31,9 @@ class PostServiceTest {
     @Autowired
     PostRepository postRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @BeforeEach
     public void dbClean(){
         postRepository.deleteAll();
@@ -48,15 +43,22 @@ class PostServiceTest {
     @DisplayName("글 작성")
     void test1(){
 
-
         // given
+        User user = User.builder()
+                .name("전재학")
+                .email("qwe@qwe")
+                .password("1234")
+                .build();
+
+        userRepository.save(user);
+
         PostCreate postCreate = PostCreate.builder()
                 .title("제목123")
                 .content("내용123")
                 .build();
 
         // when
-        postService.write(postCreate);
+        postService.write(user.getId(), postCreate);
 
 
         // then

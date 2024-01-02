@@ -23,10 +23,15 @@ public class Post {
     @Lob // DB 에서는 long text 형식
     private String content;
 
+    @ManyToOne
+    @JoinColumn
+    private User user;
+
     @Builder
-    public Post(String title, String content) {
+    public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
+        this.user = user;
     }
 
     public void edit(PostEdit postEdit){
@@ -35,6 +40,10 @@ public class Post {
         this.content = postEdit.getContent() != null ? postEdit.getContent() : this.getContent();
 //        this.title = title;
 //        this.content = content;
+    }
+
+    public Long getUserId(){
+        return this.user.getId();
     }
 
     // 수정 메서드 1

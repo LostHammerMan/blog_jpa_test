@@ -2,12 +2,15 @@ package com.blog_jpa.blog.service;
 
 import com.blog_jpa.blog.domain.entity.Post;
 import com.blog_jpa.blog.domain.entity.PostEditor;
+import com.blog_jpa.blog.domain.entity.User;
 import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.dto.request.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.exception.PostNotFoundException;
+import com.blog_jpa.blog.exception.UserNotFoundException;
 import com.blog_jpa.blog.repository.PostRepository;
+import com.blog_jpa.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -25,16 +28,20 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
 //    public Post write(PostCreate postCreate){
 //    public Long write(PostCreate postCreate){
-    public void write(PostCreate postCreate){
+    public void write(Long userId, PostCreate postCreate){
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
 
         log.info("write service called.......");
         // Dto -> Entity
         Post post = Post.builder()
                 .title(postCreate.getTitle())
                 .content(postCreate.getContent())
+                .user(findUser)
                 .build();
 
         log.info("post = {}", post.getTitle());

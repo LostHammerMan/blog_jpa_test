@@ -3,3 +3,16 @@
 GET http://localhost:8888/foo
 Content-Type: application/json
 Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNSIsImlhdCI6MTcwMjk2NTE3Mn0.eXgoowTNhH-8I4Loq5fY9OqJHdyJlbri7yadCWHZdxs
+
+### 게시글 작성
+POST http://localhost:8888/posts
+Content-Type: application/json
+
+{
+  "title": "제목이다",
+  "content": "내용이다"
+}
+
+### 게시글 삭제
+DELETE http://localhost:8888/posts/1
+Content-Type: application/json

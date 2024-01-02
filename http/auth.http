@@ -1,20 +1,48 @@
-## 회원가입
+### 회원가입
 POST http://localhost:8888/auth/signUp
 Content-Type: application/json
 
 {
   "name" : "금강선",
-  "email" : "ccc@ccc",
+  "email" : "aaa@ccc",
   "password" : "1234"
 }
 
+### 회원가입 2
+POST http://localhost:8888/auth/signUp
+Content-Type: application/json
 
-### 로그인
+{
+"name" : "은강선",
+"email" : "bbb@ccc",
+"password" : "1234"
+}
+
+
+### 로그인 - form 방식
 
 POST http://localhost:8888/auth/login
 Content-Type: application/x-www-form-urlencoded
 
-username=ccc@ccc&password=1234&remember=1
+username=aaa@ccc&password=1234&remember=1
+
+### 로그인 - json 방식
+POST http://localhost:8888/auth/login
+content-Type: application/json
+
+{
+  "email": "aaa@ccc",
+  "password": "1234"
+}
+
+### 로그인2 - json 방식
+POST http://localhost:8888/auth/login
+content-Type: application/json
+
+{
+  "email": "bbb@ccc",
+  "password": "1234"
+}
 
 ### 메인 페이지
 GET http://localhost:8888

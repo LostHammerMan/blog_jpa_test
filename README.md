@@ -11,3 +11,7 @@
 
 3. BCrpyt, Scrypt, Argon2
    1. salt 값
+
+## Permission Evaluator
+- ex) '나'의 게시글을 다른 '사용자'가 삭제 하면 안됨
+- 현재 로그인한 사용자와 작성 사용자가 동일한 사용자인지 판단하는 도구

@@ -1,14 +1,11 @@
 package com.blog_jpa.blog.controller;
 
-import com.blog_jpa.blog.domain.entity.Session;
 import com.blog_jpa.blog.domain.entity.User;
 import com.blog_jpa.blog.dto.request.Login;
 import com.blog_jpa.blog.dto.request.SignUpDto;
-import com.blog_jpa.blog.repository.SessionRepository;
 import com.blog_jpa.blog.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.session.SessionRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;

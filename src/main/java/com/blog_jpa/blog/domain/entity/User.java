@@ -24,6 +24,9 @@ public class User {
 
     private LocalDateTime createAt = LocalDateTime.now();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Post> post;
+
     // 유저 한명 -- 세션 여러 개 (일대다)
 //    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
 //    private List<Session> sessions = new ArrayList<>();

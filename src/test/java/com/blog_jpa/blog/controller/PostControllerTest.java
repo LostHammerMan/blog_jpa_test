@@ -1,22 +1,22 @@
 package com.blog_jpa.blog.controller;
 
+import com.blog_jpa.blog.config.annotation.BlogMockUser;
 import com.blog_jpa.blog.domain.entity.Post;
+import com.blog_jpa.blog.domain.entity.User;
 import com.blog_jpa.blog.dto.request.PostCreate;
 import com.blog_jpa.blog.dto.request.PostEdit;
 import com.blog_jpa.blog.repository.PostRepository;
+import com.blog_jpa.blog.repository.UserRepository;
 import com.blog_jpa.blog.service.PostService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -44,11 +44,15 @@ class PostControllerTest {
     private PostRepository postRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private PostService postService;
 
     // 각각의 메서드가 실행되기 전 우선적으로 실행됨
-    @BeforeEach
+    @AfterEach // @BeforeEach  사용시 시큐리티 컨텍스트가 먼저 작동해 컨텍스트에서 저장된 유저 삭제함
     void clean(){
+        userRepository.deleteAll();
         postRepository.deleteAll();
     }
 
@@ -116,7 +120,11 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성 요청시 DB 에 값이 저장")
+//    @WithMockUser(username = "aaa@ddd",
+//            roles = {"ADMIN"},
+//            password = "1234") // 해당 속성대로 인증이 되었다고 가정
+    @BlogMockUser
+    @DisplayName("글작성 + 시큐리티 테스트")
     public void test3() throws Exception {
 
         // before
@@ -208,7 +216,7 @@ class PostControllerTest {
                     .content("내용" + i)
                     .build();
 
-            postService.write(postList);
+//            postService.write(postList);
         }
 
         //
@@ -252,13 +260,20 @@ class PostControllerTest {
 
     // post 여러 개 + 페이징
     @Test
+//    @WithMockUser(username = "aaa@ddd",
+//            roles = {"ADMIN"},
+//            password = "1234") // 해당 속성대로 인증이 되었다고 가정
+    @BlogMockUser
     @DisplayName("post 수정 test")
     public void test7() throws Exception{
 
         // given
+        User findUser = userRepository.findAll().get(0);
+
         Post post = Post.builder()
                 .title("제목1")
                 .content("내용1")
+                .user(findUser)
                 .build();
 
         postRepository.save(post);
@@ -286,15 +301,24 @@ class PostControllerTest {
     }
 
     @Test
+//    @WithMockUser(username = "aaa@ddd",
+//            roles = {"ADMIN"},
+//            password = "1234") // 해당 속성대로 인증이 되었다고 가정
+    @BlogMockUser()
     @DisplayName("post 삭제 테스트")
     public void postDelete() throws Exception {
 
         // given
+        User findUser = userRepository.findAll().get(0);
+
+
+
         List<Post> postList = IntStream.range(1, 30)
                 .mapToObj(i -> {
                     return Post.builder()
                             .title("title" + i)
                             .content("content" + i)
+                            .user(findUser)
                             .build();
                 }).toList();
 

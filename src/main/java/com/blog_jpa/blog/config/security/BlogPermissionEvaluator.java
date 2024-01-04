@@ -2,15 +2,13 @@ package com.blog_jpa.blog.config.security;
 
 import com.blog_jpa.blog.domain.entity.Post;
 import com.blog_jpa.blog.exception.PostNotFoundException;
-import com.blog_jpa.blog.repository.PostRepository;
+import com.blog_jpa.blog.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -1,6 +1,7 @@
 package com.blog_jpa.blog.domain.entity;
 
-import com.blog_jpa.blog.dto.request.PostEdit;
+import com.blog_jpa.blog.dto.request.comment.CommentCreate;
+import com.blog_jpa.blog.dto.request.post.PostEdit;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,6 +9,8 @@ import jakarta.persistence.Lob;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @ToString
@@ -27,6 +30,9 @@ public class Post {
     @JoinColumn
     private User user;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
     @Builder
     public Post(String title, String content, User user) {
         this.title = title;
@@ -44,6 +50,11 @@ public class Post {
 
     public Long getUserId(){
         return this.user.getId();
+    }
+
+    public void addCommend(Comment comment) {
+        comment.setPost(this);
+        this.comments.add(comment);
     }
 
     // 수정 메서드 1

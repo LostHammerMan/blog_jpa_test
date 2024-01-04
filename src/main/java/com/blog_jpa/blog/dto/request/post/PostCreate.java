@@ -1,4 +1,4 @@
-package com.blog_jpa.blog.dto.request;
+package com.blog_jpa.blog.dto.request.post;
 
 import com.blog_jpa.blog.exception.InvalidRequest;
 import jakarta.validation.constraints.NotBlank;

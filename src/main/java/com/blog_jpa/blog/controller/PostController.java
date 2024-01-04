@@ -2,9 +2,9 @@ package com.blog_jpa.blog.controller;
 
 import com.blog_jpa.blog.config.data.UserSession;
 import com.blog_jpa.blog.config.security.UserPrincipal;
-import com.blog_jpa.blog.dto.request.PostCreate;
-import com.blog_jpa.blog.dto.request.PostEdit;
-import com.blog_jpa.blog.dto.request.PostSearch;
+import com.blog_jpa.blog.dto.request.post.PostCreate;
+import com.blog_jpa.blog.dto.request.post.PostEdit;
+import com.blog_jpa.blog.dto.request.post.PostSearch;
 import com.blog_jpa.blog.dto.response.PostResponse;
 import com.blog_jpa.blog.service.PostService;
 import jakarta.validation.Valid;
